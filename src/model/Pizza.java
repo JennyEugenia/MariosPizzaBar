@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Arrays;
+
 public class Pizza {
     private int pizzaNumber;
     private String name;
@@ -32,6 +34,6 @@ public class Pizza {
     }
 
     public String toString(){
-        return name + price + " kr";
+        return pizzaNumber +". " + name + ": " + Arrays.toString(ingredients) +", " + price + " kr";
     }
 }
