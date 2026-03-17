@@ -31,7 +31,7 @@ public class Order {
         for (Pizza pizza : pizzas) {
             total += pizza.getPrice();
         }
-        return customer.applyDiscount(total); // Polymorfi!
+        return customer.getDiscount(total); // Polymorfi!
     }
 
     // Getters
