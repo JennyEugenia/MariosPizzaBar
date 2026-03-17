@@ -9,16 +9,16 @@ public class Order {
     private Customer customer;        // NormalCustomer, VIPCustomer eller EmployeeCustomer
     private List<Pizza> pizzas;
     private OrderStatus status;
-    //private LocalDateTime pickupTime; // Hvornår skal den afhentes?
-    //private LocalDateTime orderTime;  // Hvornår blev den bestilt?
+    private LocalDateTime pickupTime; // Hvornår skal den afhentes?
+    private LocalDateTime orderTime;  // Hvornår blev den bestilt?
 
     public Order(int orderId, Customer customer, LocalDateTime pickupTime) {
         this.orderId = orderId;
         this.customer = customer;
         this.pizzas = new ArrayList<>();
         this.status = OrderStatus.MODTAGET;
-        //this.orderTime = LocalDateTime.now();
-        //this.pickupTime = pickupTime;
+        this.orderTime = LocalDateTime.now();
+        this.pickupTime = pickupTime;
     }
 
     public void addPizza(Pizza pizza) {
@@ -31,7 +31,7 @@ public class Order {
         for (Pizza pizza : pizzas) {
             total += pizza.getPrice();
         }
-        return customer.getDiscount(total); // Polymorfi!
+        return total * (1 - customer.getDiscount()); // Polymorfi!
     }
 
     // Getters
@@ -47,23 +47,23 @@ public class Order {
     public OrderStatus getStatus()      {
         return status; }
 
-    /*public LocalDateTime getPickupTime(){
+    public LocalDateTime getPickupTime(){
         return pickupTime; }
 
     public LocalDateTime getOrderTime() {
-        return orderTime; }*/
+        return orderTime; }
 
     // Setter – bruges når Alfonso markerer en pizza som klar
     public void setStatus(OrderStatus status) {
         this.status = status;
     }
 
-    /*@Override
+    @Override
     public String toString() {
         return "Ordre #" + orderId +
                 " | " + customer.getName() +
                 " | Afhentning: " + pickupTime +
                 " | " + status +
-                " | Pris: " + getTotalPrice() + " kr.";*/
+                " | Pris: " + getTotalPrice() + " kr.";
     }
 }
