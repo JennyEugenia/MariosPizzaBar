@@ -1,4 +1,4 @@
-package Model;
+package model;
 
 // NormalCustomer arver fra Customer
 public class NormalCustomer extends Customer {

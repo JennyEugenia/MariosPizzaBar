@@ -1,17 +1,17 @@
-package Model;
+package model;
 
-// VIPCustomer arver fra Customer
-public class VIPCustomer extends Customer {
+// EmployeeCustomer arver fra Customer
+public class EmployeeCustomer extends Customer {
 
     // Constructor sender navnet videre til Customer
-    public VIPCustomer(String name) {
+    public EmployeeCustomer(String name) {
         super(name); // kalder constructor i Customer
     }
 
-    // VIP kunder får 10% rabat
+    // Medarbejdere får 20% rabat
     @Override
     public double getDiscount() {
-        return 0.10;
+        return 0.20;
     }
 
     // toString fungerer automatisk via Customer

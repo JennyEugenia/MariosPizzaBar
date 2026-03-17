@@ -1,4 +1,4 @@
-package Model;
+package model;
 
 // Kreation af abstract super class ("Customer")
 public abstract class Customer {
