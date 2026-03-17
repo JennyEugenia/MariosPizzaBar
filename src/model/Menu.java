@@ -55,9 +55,9 @@ public class Menu {
 
     }
 
-    public Pizza findPizza(int number){
+    public Pizza findPizza(int pizzaNumber){
         for ( Pizza pizza : pizzas){
-            if ( pizza.getNumber() == number){
+            if ( pizza.getPizzaNumber() == pizzaNumber){
                 return pizza;
             }
         }

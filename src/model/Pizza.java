@@ -17,7 +17,7 @@ public class Pizza {
     }
 
     //Getters
-    public int getNumber(){
+    public int getPizzaNumber(){
         return pizzaNumber;
 
     }
@@ -36,4 +36,6 @@ public class Pizza {
     public String toString(){
         return pizzaNumber +". " + name + ": " + Arrays.toString(ingredients) +", " + price + " kr";
     }
+
+
 }
