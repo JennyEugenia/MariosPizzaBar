@@ -1,10 +1,9 @@
 package file;
 
-import model.Order;
-import model.Pizza;
+import model.*;
 
-
-import java.io.*; // nemmere og/eller mere overskueligt at håndtere.
+import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class FileHandler {
@@ -13,29 +12,32 @@ public class FileHandler {
 
     public static void writeOrders(ArrayList<Order> orders) {
         try {
-            // true = append. Betyder vi tilføjer til filen i stedet for at overskrive den nuværende fil.
-            PrintWriter writer = new PrintWriter(new FileWriter(FILENAME, true));
+            // false = overskriv hele filen så vi undgår dubletter
+            PrintWriter writer = new PrintWriter(new FileWriter(FILENAME, false));
 
             for (Order order : orders) {
 
-                // Byg en semikolon-separeret liste af pizzanumre
-                // Vi gemmer nummeret, ikke navnet – så vi kan slå dem op i Menu igen
                 StringBuilder pizzaNrs = new StringBuilder();
                 for (Pizza pizza : order.getPizzas()) {
                     pizzaNrs.append(pizza.getPizzaNumber()).append(";");
                 }
 
-                // Vi skriver én linje pr. ordre i CSV-format:
-                // orderId , kundenavn , pizzanummer , afhentingstid , totalpris
+                String customerType = switch (order.getCustomer()) {
+                    case VIPCustomer v      -> "VIP";
+                    case EmployeeCustomer e -> "EMPLOYEE";
+                    default                 -> "NORMAL";
+                };
+
+                // Format: orderId,customerType,navn,pizzaNrs,pickupTime,status
                 writer.println(
-                        order.getOrderId()              + "," +
-                                order.getCustomer().getName()   + "," +
-                                pizzaNrs                        + "," +
-                                order.getPickupTime()            + "," +
-                                order.getTotalPrice()
+                        order.getOrderId()            + "," +
+                                customerType                  + "," +
+                                order.getCustomer().getName() + "," +
+                                pizzaNrs                      + "," +
+                                order.getPickupTime()         + "," +
+                                order.getStatus()
                 );
             }
-            // VIGTIGT vi altid lukker filen!
             writer.close();
 
         } catch (IOException e) {
@@ -43,29 +45,41 @@ public class FileHandler {
         }
     }
 
-    public static void readOrders() {
+    public static ArrayList<Order> readOrders(Menu menu) {
+        ArrayList<Order> orders = new ArrayList<>();
+
         try {
             BufferedReader reader = new BufferedReader(new FileReader(FILENAME));
             String line;
 
-            System.out.println("=== Tidligere ekspederede ordrer ===");
-
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
 
-                int orderId         = Integer.parseInt(parts[0]);
-                String customerName = parts[1];
-                String pizzaNrs     = parts[2];
-                String pickupTime   = parts[3];
-                double totalPrice   = Double.parseDouble(parts[4]);
+                int orderId              = Integer.parseInt(parts[0]);
+                String customerType      = parts[1];
+                String customerName      = parts[2];
+                String pizzaNrs          = parts[3];
+                LocalDateTime pickupTime = LocalDateTime.parse(parts[4]);
+                OrderStatus status       = OrderStatus.valueOf(parts[5]);
 
-                System.out.println("Ordre #" + orderId +
-                        " | " + customerName +
-                        " | Pizzaer: " + pizzaNrs +
-                        " | Afhentning: " + pickupTime +
-                        " | " + totalPrice + " kr.");
+                Customer customer = switch (customerType) {
+                    case "VIP"      -> new VIPCustomer(customerName);
+                    case "EMPLOYEE" -> new EmployeeCustomer(customerName);
+                    default         -> new NormalCustomer(customerName);
+                };
+
+                Order order = new Order(orderId, customer, pickupTime);
+                order.setStatus(status);
+
+                for (String nr : pizzaNrs.split(";")) {
+                    if (!nr.isEmpty()) {
+                        Pizza pizza = menu.findPizza(Integer.parseInt(nr));
+                        if (pizza != null) order.addPizza(pizza);
+                    }
+                }
+
+                orders.add(order);
             }
-
             reader.close();
 
         } catch (FileNotFoundException e) {
@@ -73,5 +87,7 @@ public class FileHandler {
         } catch (IOException e) {
             System.out.println("Fejl ved læsning af fil: " + FILENAME);
         }
+
+        return orders;
     }
 }

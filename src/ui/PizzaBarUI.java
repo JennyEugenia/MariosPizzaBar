@@ -1,9 +1,11 @@
 package ui;
 
+import file.FileHandler;
 import model.*;
 import service.OrderManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class PizzaBarUI {
@@ -15,10 +17,13 @@ public class PizzaBarUI {
     public PizzaBarUI() {
         scanner = new Scanner(System.in);
         orderManager = new OrderManager();
-        menu = new Menu(); // husk: Menu skal have constructor, som loader pizzaer
+        menu = new Menu();
+
+        // Indlæs tidligere ordrer fra fil ved opstart
+        ArrayList<Order> loadedOrders = FileHandler.readOrders(menu);
+        orderManager.loadOrders(loadedOrders);
     }
 
-    // Main loop
     public void start() {
         while (true) {
             System.out.println("\n--- PIZZABAR ---");
@@ -28,7 +33,7 @@ public class PizzaBarUI {
             System.out.println("0. Afslut");
 
             int choice = scanner.nextInt();
-            scanner.nextLine(); // ryd buffer
+            scanner.nextLine();
 
             switch (choice) {
                 case 1 -> receiveOrder();
@@ -43,30 +48,23 @@ public class PizzaBarUI {
         }
     }
 
-    // 1) Modtag ordre
     private void receiveOrder() {
         System.out.println("\nIndtast navn:");
         String name = scanner.nextLine();
 
-        // Spørg efter kundetype
         System.out.println("Vælg kundetype: 1 = Normal, 2 = VIP, 3 = Medarbejder");
         int type = scanner.nextInt();
-        scanner.nextLine(); // ryd buffer
+        scanner.nextLine();
 
-        // Opret kunden korrekt
         Customer customer = orderManager.createCustomer(type, name);
-
-        // Opret ordre med afhentningstid +15 min
         Order order = orderManager.createOrder(customer, LocalDateTime.now().plusMinutes(15));
 
-        // Vis menu
         menu.displayMenu();
 
         System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
         String input = scanner.nextLine();
         String[] choices = input.split(",");
 
-        // Tilføj pizzaer til ordren
         for (String choiceStr : choices) {
             try {
                 int pizzaNumber = Integer.parseInt(choiceStr.trim());
@@ -83,9 +81,11 @@ public class PizzaBarUI {
 
         System.out.println("\nOrdre oprettet:");
         System.out.println(order);
+
+        // Gem alle ordrer til fil
+        FileHandler.writeOrders(orderManager.getOrders());
     }
 
-    // 2) Vis aktive ordrer
     private void showActiveOrders() {
         System.out.println("\n--- AKTIVE ORDRER ---");
 
@@ -106,12 +106,13 @@ public class PizzaBarUI {
 
         if (orderManager.updateOrderStatus(id, OrderStatus.AFHENTET)) {
             System.out.println("Ordre markeret som afhentet!");
+            // Gem efter statusændring
+            FileHandler.writeOrders(orderManager.getOrders());
         } else {
             System.out.println("Ordre ikke fundet.");
         }
     }
 
-    // 3) Vis færdige ordrer + statistik
     private void showPastOrders() {
         System.out.println("\n--- TIDLIGERE ORDRER ---");
 
