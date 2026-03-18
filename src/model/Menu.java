@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Menu {
     private ArrayList<Pizza> pizzas;
 
-    public void menu(){
+    public Menu(){
         pizzas = new ArrayList<>();
         loadMenu();
     }
@@ -66,11 +66,11 @@ public class Menu {
 
     public void displayMenu(){
         for (Pizza pizza : pizzas){
-            System.out.println(pizzas);
+            System.out.println(pizza);
         }
     }
 
-    public ArrayList<Pizza>getPizza(){
+    public ArrayList<Pizza> getPizzas(){
         return pizzas;
     }
 
