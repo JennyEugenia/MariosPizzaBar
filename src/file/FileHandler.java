@@ -26,7 +26,7 @@ public class FileHandler {
                 }
 
                 // Vi skriver én linje pr. ordre i CSV-format:
-                // orderId , kundenavn , pizzanumre , afhentingstid , totalpris
+                // orderId , kundenavn , pizzanummer , afhentingstid , totalpris
                 writer.println(
                         order.getOrderId()              + "," +
                                 order.getCustomer().getName()   + "," +
