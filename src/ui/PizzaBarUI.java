@@ -156,7 +156,7 @@ public class PizzaBarUI {
                 System.out.println("Ordre #" + order.getOrderId() +
                         " | " + order.getCustomer().getName() +
                         " | Afhentet: " + order.getFormattedPickupTimeWithDate() +
-                        " | " + order.getTotalPrice() + " kr.");
+                        " | " + String.format("%.2f", order.getTotalPrice()) + " kr.");
                 hasPast = true;
             }
         }
@@ -165,7 +165,7 @@ public class PizzaBarUI {
         System.out.println("\n--- STATISTIK ---");
         System.out.println("Antal færdige ordrer: " +
                 orderManager.getOrders().stream().filter(o -> o.getStatus() == OrderStatus.AFHENTET).count());
-        System.out.println("Total omsætning: " + orderManager.getTotalRevenueByStatus(OrderStatus.AFHENTET) + " kr");
+        System.out.println("Total omsætning: " + String.format("%.2f", orderManager.getTotalRevenueByStatus(OrderStatus.AFHENTET)) + " kr");
 
         System.out.println("\n--- MEST SOLGTE PIZZAER ---");
         orderManager.printPizzaRanking(menu, OrderStatus.AFHENTET);

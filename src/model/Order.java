@@ -73,6 +73,6 @@ public class Order {
                 " | " + customer.getName() +
                 " | Afhentning: " + getFormattedPickupTime() +
                 " | " + status +
-                " | Pris: " + getTotalPrice() + " kr.";
+                " | Pris: " + String.format("%.2f", getTotalPrice()) + " kr.";
     }
 }
