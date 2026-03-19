@@ -119,7 +119,10 @@ public class PizzaBarUI {
         boolean hasPast = false;
         for (Order order : orderManager.getOrders()) {
             if (order.getStatus() == OrderStatus.AFHENTET) {
-                System.out.println(order);
+                System.out.println("Ordre #" + order.getOrderId() +
+                        " | " + order.getCustomer().getName() +
+                        " | Afhentet: " + order.getFormattedPickupTimeWithDate() +
+                        " | " + order.getTotalPrice() + " kr.");
                 hasPast = true;
             }
         }
@@ -130,4 +133,4 @@ public class PizzaBarUI {
                 orderManager.getOrders().stream().filter(o -> o.getStatus() == OrderStatus.AFHENTET).count());
         System.out.println("Total omsætning: " + orderManager.getTotalRevenue() + " kr");
     }
-}
+}2

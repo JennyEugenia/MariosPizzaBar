@@ -2,6 +2,7 @@ package model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter; //til brug af redigering af dato & tidspunkt.
 import java.util.List;
 
 public class Order {
@@ -11,6 +12,13 @@ public class Order {
     private OrderStatus status;
     private LocalDateTime pickupTime;
     private LocalDateTime orderTime;
+
+    // Opretter 2 tidsformater, én under aktive ordre (mere overskueligt) og hertil den anden i statistik, mere detaljeret.
+    private static final DateTimeFormatter TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("HH:mm");
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
     public Order(int orderId, Customer customer, LocalDateTime pickupTime) {
         this.orderId = orderId;
@@ -33,12 +41,27 @@ public class Order {
         return total * (1 - customer.getDiscount());
     }
 
-    public int getOrderId()              { return orderId; }
-    public Customer getCustomer()        { return customer; }
-    public List<Pizza> getPizzas()       { return pizzas; }
-    public OrderStatus getStatus()       { return status; }
-    public LocalDateTime getPickupTime() { return pickupTime; }
-    public LocalDateTime getOrderTime()  { return orderTime; }
+    public int getOrderId()              {
+        return orderId; }
+    public Customer getCustomer()        {
+        return customer; }
+    public List<Pizza> getPizzas()       {
+        return pizzas; }
+    public OrderStatus getStatus()       {
+        return status; }
+    public LocalDateTime getPickupTime() {
+        return pickupTime; }
+    public LocalDateTime getOrderTime()  {
+        return orderTime; }
+
+    // FORMATTER METODER der bruges i de 2 forskellige statusser.
+    public String getFormattedPickupTime() {
+        return pickupTime.format(TIME_FORMATTER);
+    }
+
+    public String getFormattedPickupTimeWithDate() {
+        return pickupTime.format(DATE_TIME_FORMATTER);
+    }
 
     public void setStatus(OrderStatus status) {
         this.status = status;
@@ -48,7 +71,7 @@ public class Order {
     public String toString() {
         return "Ordre #" + orderId +
                 " | " + customer.getName() +
-                " | Afhentning: " + pickupTime +
+                " | Afhentning: " + getFormattedPickupTime() +
                 " | " + status +
                 " | Pris: " + getTotalPrice() + " kr.";
     }
