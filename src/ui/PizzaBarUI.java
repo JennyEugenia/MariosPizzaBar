@@ -165,6 +165,6 @@ public class PizzaBarUI {
         System.out.println("\n--- STATISTIK ---");
         System.out.println("Antal færdige ordrer: " +
                 orderManager.getOrders().stream().filter(o -> o.getStatus() == OrderStatus.AFHENTET).count());
-        System.out.println("Total omsætning: " + orderManager.getTotalRevenue() + " kr");
+        System.out.println("Total omsætning: " + orderManager.getTotalRevenueByStatus(OrderStatus.AFHENTET) + " kr");
     }
 }
