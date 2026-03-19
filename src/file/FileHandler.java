@@ -34,7 +34,7 @@ public class FileHandler {
                                 customerType                  + "," +
                                 order.getCustomer().getName() + "," +
                                 pizzaNrs                      + "," +
-                                order.getPickupTime()         + "," +
+                                order.getFormattedPickupTimeWithDate()         + "," +
                                 order.getStatus()
                 );
             }

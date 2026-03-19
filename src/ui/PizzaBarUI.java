@@ -4,7 +4,10 @@ import file.FileHandler;
 import model.*;
 import service.OrderManager;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -57,7 +60,6 @@ public class PizzaBarUI {
         scanner.nextLine();
 
         Customer customer = orderManager.createCustomer(type, name);
-        Order order = orderManager.createOrder(customer, LocalDateTime.now().plusMinutes(15));
 
         menu.displayMenu();
 
@@ -65,18 +67,42 @@ public class PizzaBarUI {
         String input = scanner.nextLine();
         String[] choices = input.split(",");
 
+        // Midlertidig liste til de valgte pizzaer
+        ArrayList<Pizza> selectedPizzas = new ArrayList<>();
+
         for (String choiceStr : choices) {
             try {
                 int pizzaNumber = Integer.parseInt(choiceStr.trim());
                 Pizza pizza = menu.findPizza(pizzaNumber);
                 if (pizza != null) {
-                    orderManager.addPizzaToOrder(order, pizza);
+                    selectedPizzas.add(pizza);
                 } else {
                     System.out.println("Pizza nummer " + pizzaNumber + " findes ikke.");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Ugyldigt nummer: " + choiceStr);
             }
+        }
+
+        // Indtast afhentingstidspunkt
+        LocalDateTime pickupTime = null;
+        while (pickupTime == null) {
+            System.out.println("\nIndtast afhentingstidspunkt (HH:mm):");
+            String timeInput = scanner.nextLine();
+            try {
+                LocalTime parsedTime = LocalTime.parse(timeInput, DateTimeFormatter.ofPattern("HH:mm"));
+                pickupTime = LocalDate.now().atTime(parsedTime);
+            } catch (Exception e) {
+                System.out.println("Ugyldigt format – prøv igen (fx 18:30).");
+            }
+        }
+
+        // Opret ordre med det korrekte afhentingstidspunkt
+        Order order = orderManager.createOrder(customer, pickupTime);
+
+        // Tilføj de valgte pizzaer til ordren
+        for (Pizza pizza : selectedPizzas) {
+            orderManager.addPizzaToOrder(order, pizza);
         }
 
         System.out.println("\nOrdre oprettet:");
@@ -119,7 +145,10 @@ public class PizzaBarUI {
         boolean hasPast = false;
         for (Order order : orderManager.getOrders()) {
             if (order.getStatus() == OrderStatus.AFHENTET) {
-                System.out.println(order);
+                System.out.println("Ordre #" + order.getOrderId() +
+                        " | " + order.getCustomer().getName() +
+                        " | Afhentet: " + order.getFormattedPickupTimeWithDate() +
+                        " | " + order.getTotalPrice() + " kr.");
                 hasPast = true;
             }
         }
