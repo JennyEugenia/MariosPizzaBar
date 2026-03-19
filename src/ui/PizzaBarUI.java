@@ -133,4 +133,4 @@ public class PizzaBarUI {
                 orderManager.getOrders().stream().filter(o -> o.getStatus() == OrderStatus.AFHENTET).count());
         System.out.println("Total omsætning: " + orderManager.getTotalRevenue() + " kr");
     }
-}2
+}
