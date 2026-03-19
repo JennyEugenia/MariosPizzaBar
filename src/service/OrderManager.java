@@ -55,11 +55,51 @@ public class OrderManager {
         return false;
     }
 
-    public double getTotalRevenue() {
+    public double getTotalRevenueByStatus(OrderStatus status) {
         double total = 0;
-        for (Order o : orders) total += o.getTotalPrice();
+        for (Order o : orders) {
+            if(o.getStatus() == status) {
+                total += o.getTotalPrice();
+            }
+        }
         return total;
     }
+
+    public int countPizzaByName(String pizzaName, OrderStatus status) {
+        int count = 0;
+
+        for (Order o : orders) {
+            if (o.getStatus() == status) {
+
+                for (Pizza pizza : o.getPizzas()) {
+                    if (pizza.getName().equalsIgnoreCase(pizzaName)) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+    // Sort pizzas by popularity
+    public void printPizzaRanking(Menu menu, OrderStatus status) {
+
+        ArrayList<Pizza> pizzas = menu.getPizzas();
+
+        for (int i = 0; i < pizzas.size(); i++) {
+            for (int j = i + 1; j < pizzas.size(); j++) {
+
+                int count1 = countPizzaByName(pizzas.get(i).getName(), status);
+                int count2 = countPizzaByName(pizzas.get(j).getName(), status);
+
+                if (count2 > count1) {
+                    Pizza temp = pizzas.get(i);
+                    pizzas.set(i, pizzas.get(j));
+                    pizzas.set(j, temp);
+                }
+            }
+        }
+    }
+
 
     public int getOrderCount() {
         return orders.size();
