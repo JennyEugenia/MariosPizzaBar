@@ -166,5 +166,14 @@ public class PizzaBarUI {
         System.out.println("Antal færdige ordrer: " +
                 orderManager.getOrders().stream().filter(o -> o.getStatus() == OrderStatus.AFHENTET).count());
         System.out.println("Total omsætning: " + orderManager.getTotalRevenueByStatus(OrderStatus.AFHENTET) + " kr");
+
+        System.out.println("\n--- MEST SOLGTE PIZZAER ---");
+        orderManager.printPizzaRanking(menu, OrderStatus.AFHENTET);
+        for (Pizza pizza : menu.getPizzas()) {
+            int count = orderManager.countPizzaByName(pizza.getName(), OrderStatus.AFHENTET);
+            if (count > 0) {
+                System.out.println(pizza.getName() + " (#" + pizza.getPizzaNumber() + ") : " + count + " stk.");
+            }
+        }
     }
 }
