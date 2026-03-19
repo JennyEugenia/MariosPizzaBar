@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
+import util.OrderSorter;
 
 public class PizzaBarUI {
 
@@ -115,14 +116,21 @@ public class PizzaBarUI {
     private void showActiveOrders() {
         System.out.println("\n--- AKTIVE ORDRER ---");
 
-        boolean hasActive = false;
+        ArrayList<Order> activeOrders = new ArrayList<>();
         for (Order order : orderManager.getOrders()) {
             if (order.getStatus() != OrderStatus.AFHENTET) {
-                System.out.println(order.getOrderId() + ": " + order);
-                hasActive = true;
+                activeOrders.add(order);
             }
         }
-        if (!hasActive) System.out.println("Ingen aktive ordrer.");
+
+        if (activeOrders.isEmpty()) {
+            System.out.println("Ingen aktive ordrer.");
+        } else {
+            OrderSorter.sortOrders(activeOrders);
+            for (Order order : activeOrders) {
+                System.out.println(order.getOrderId() + ": " + order);
+            }
+        }
 
         System.out.println("\nIndtast ordre ID for afhentning (0 = tilbage):");
         int id = scanner.nextInt();

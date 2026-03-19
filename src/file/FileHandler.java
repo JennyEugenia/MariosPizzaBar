@@ -59,7 +59,8 @@ public class FileHandler {
                 String customerType      = parts[1];
                 String customerName      = parts[2];
                 String pizzaNrs          = parts[3];
-                LocalDateTime pickupTime = LocalDateTime.parse(parts[4]);
+                LocalDateTime pickupTime = LocalDateTime.parse(parts[4],
+                        java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
                 OrderStatus status       = OrderStatus.valueOf(parts[5]);
 
                 Customer customer = switch (customerType) {
