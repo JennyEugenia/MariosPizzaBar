@@ -99,8 +99,7 @@ public class OrderManager {
             }
         }
     }
-
-
+    
     public int getOrderCount() {
         return orders.size();
     }

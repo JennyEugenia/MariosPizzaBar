@@ -32,8 +32,17 @@ public class Pizza {
     public double getPrice(){
         return price;
     }
+     //format of menu (%d=int, %s=String)
+    public String toString() {
+        String ingredientStr = String.join(", ", ingredients);
 
-    public String toString(){
-        return pizzaNumber +". " + name + ": " + Arrays.toString(ingredients) +", " + price + " kr";
+        String left = String.format("%d. %s: %s", pizzaNumber, name, ingredientStr);
+
+        int totalLength = 80; // length of line
+        int dots = totalLength - left.length();
+
+        String dotStr = ".".repeat(Math.max(0, dots));
+
+        return left + dotStr + price + " kr";
     }
 }
