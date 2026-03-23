@@ -31,6 +31,21 @@ public class ExceptionHandler {
             }
         }
     }
+    //Validering af der bliver skrevet et navn (ikke tal eller tomt felt)
+    public static String readName(Scanner scanner, String prompt) {
+        String name = "";
+        while (name.isEmpty()) {
+            System.out.print(prompt);
+            name = scanner.nextLine().trim();
 
+            if (name.isEmpty()) {
+                System.out.println("Navn må ikke være tomt – prøv igen.");
+            } else if (name.matches(".*\\d.*")) {
+                System.out.println("Navn må ikke indeholde tal – prøv igen.");
+                name = "";
+            }
+        }
+        return name;
+    }
 
 }

@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import util.OrderSorter;
+import util.ExceptionHandler;
 
 public class PizzaBarUI {
 
@@ -53,36 +54,119 @@ public class PizzaBarUI {
     }
 
     private void receiveOrder() {
-        System.out.println("\nIndtast navn:");
-        String name = scanner.nextLine();
+        String name = ExceptionHandler.readName(scanner, "\nIndtast navn: ");
 
         System.out.println("Vælg kundetype: 1 = Normal, 2 = VIP, 3 = Medarbejder");
-        int type = scanner.nextInt();
+        int type = ExceptionHandler.getIntInRange(scanner, 1, 3);
         scanner.nextLine();
 
         Customer customer = orderManager.createCustomer(type, name);
 
         menu.displayMenu();
 
-        System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
-        String input = scanner.nextLine();
-        String[] choices = input.split(",");
+        ArrayList<Pizza> selectedPizzas = new ArrayList<>();
+        boolean confirmed = false;
 
-        // Midlertidig liste til de valgte pizzaer
+        while (!confirmed) {
+            selectedPizzas.clear();
+
+            System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
+            String input = scanner.nextLine().trim();
+            String[] choices = input.split(",");
+
+            // Hvor mange pizzaer ønskede Alfonso i alt?
+            int ønsketAntal = choices.length;
+            ArrayList<Integer> ikkeFundet = new ArrayList<>();
+
+            for (String choiceStr : choices) {
+                try {
+                    int pizzaNumber = Integer.parseInt(choiceStr.trim());
+                    Pizza pizza = menu.findPizza(pizzaNumber);
+                    if (pizza != null) {
+                        selectedPizzas.add(pizza);
+                        System.out.println(pizza.getName() + " tilføjet ✓");
+                    } else {
+                        ikkeFundet.add(pizzaNumber);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Ugyldigt nummer: " + choiceStr);
+                    ønsketAntal--; // tæl ikke tomme/ugyldige input med
+                }
+            }
+
+            // Hvis nogle pizzaer ikke blev fundet – bed om erstatninger
+            while (!ikkeFundet.isEmpty()) {
+                System.out.println("\nHov! " + ikkeFundet.size() + " af dine ønskede pizzaer findes ikke:");
+                for (int nr : ikkeFundet) {
+                    System.out.println("  - Pizza nr. " + nr + " findes ikke i menuen.");
+                }
+                System.out.println("Du ønskede " + ønsketAntal + " pizzaer i alt – vælg "
+                        + ikkeFundet.size() + " erstatning(er):");
+
+                ikkeFundet.clear(); // nulstil listen
+
+                String erstatning = scanner.nextLine().trim();
+                String[] erstatninger = erstatning.split(",");
+
+                for (String choiceStr : erstatninger) {
+                    try {
+                        int pizzaNumber = Integer.parseInt(choiceStr.trim());
+                        Pizza pizza = menu.findPizza(pizzaNumber);
+                        if (pizza != null) {
+                            selectedPizzas.add(pizza);
+                            System.out.println(pizza.getName() + " tilføjet ✓");
+                        } else {
+                            ikkeFundet.add(pizzaNumber); // stadig ikke fundet – prøv igen
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Ugyldigt nummer: " + choiceStr);
+                    }
+                }
+            }
+
+            // Bekræftelse
+            System.out.println("\nDu har valgt følgende " + selectedPizzas.size() + " pizzaer:");
+            for (Pizza pizza : selectedPizzas) {
+                System.out.println("  - " + pizza.getName() + " (" + pizza.getPrice() + " kr.)");
+            }
+
+            System.out.println("\nEr dette korrekt? (1 = Ja, 2 = Nej – start forfra)");
+            int confirm = ExceptionHandler.getIntInRange(scanner, 1, 2);
+            scanner.nextLine();
+
+            if (confirm == 1) {
+                confirmed = true;
+            } else {
+                System.out.println("Okay – lad os prøve igen.");
+            }
+
+        /* tidligere kode ift indtastede pizzanumre
         ArrayList<Pizza> selectedPizzas = new ArrayList<>();
 
-        for (String choiceStr : choices) {
-            try {
-                int pizzaNumber = Integer.parseInt(choiceStr.trim());
-                Pizza pizza = menu.findPizza(pizzaNumber);
-                if (pizza != null) {
-                    selectedPizzas.add(pizza);
-                } else {
-                    System.out.println("Pizza nummer " + pizzaNumber + " findes ikke.");
+
+        while (selectedPizzas.isEmpty()) {
+            System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
+            String input = scanner.nextLine().trim();
+            String[] choices = input.split(",");
+
+            for (String choiceStr : choices) {
+                try {
+                    int pizzaNumber = Integer.parseInt(choiceStr.trim());
+                    Pizza pizza = menu.findPizza(pizzaNumber);
+                    if (pizza != null) {
+                        selectedPizzas.add(pizza);
+                        System.out.println(pizza.getName() + " tilføjet ✓");
+                    } else {
+                        System.out.println("Pizza nummer " + pizzaNumber + " findes ikke.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Ugyldigt nummer: " + choiceStr);
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Ugyldigt nummer: " + choiceStr);
             }
+
+            if (selectedPizzas.isEmpty()) {
+                System.out.println("Du skal vælge mindst én gyldig pizza – prøv igen.");
+            }*/
         }
 
         // Indtast afhentingstidspunkt

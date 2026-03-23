@@ -22,7 +22,7 @@ public class Order {
 
     public Order(int orderId, Customer customer, LocalDateTime pickupTime) {
         this.orderId = orderId;
-        this.customer = customer; // RETTET: var this.customer = this.customer
+        this.customer = customer;
         this.pizzas = new ArrayList<>();
         this.status = OrderStatus.MODTAGET;
         this.orderTime = LocalDateTime.now();
