@@ -141,6 +141,10 @@ public class PizzaBarUI {
             }
         }
 
+        System.out.println("\nEr der særlige ønsker til ordren?");
+        System.out.println("(fx 'ingen løg', 'ekstra ost' – tryk Enter for ingen kommentar)");
+        String comment = scanner.nextLine().trim();
+
         // Indtast afhentingstidspunkt
         LocalDateTime pickupTime = null;
         while (pickupTime == null) {
@@ -156,6 +160,12 @@ public class PizzaBarUI {
 
         // Opret ordre med det korrekte afhentingstidspunkt
         Order order = orderManager.createOrder(customer, pickupTime);
+
+        if (!comment.isEmpty()){
+        order.setComment(comment);
+        System.out.println("Kommentar tilføjet");
+    }
+
 
         // Tilføj de valgte pizzaer til ordren
         for (Pizza pizza : selectedPizzas) {
@@ -184,7 +194,7 @@ public class PizzaBarUI {
         } else {
             OrderSorter.sortOrders(activeOrders);
             for (Order order : activeOrders) {
-                System.out.println(order.getOrderId() + ": " + order);
+                System.out.println(order.getOrderId() + ": " + order + " " + order.getComment());
             }
         }
 

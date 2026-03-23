@@ -12,6 +12,7 @@ public class Order {
     private OrderStatus status;
     private LocalDateTime pickupTime;
     private LocalDateTime orderTime;
+    private String comment;
 
     // Opretter 2 tidsformater, én under aktive ordre (mere overskueligt) og hertil den anden i statistik, mere detaljeret.
     private static final DateTimeFormatter TIME_FORMATTER =
@@ -27,6 +28,7 @@ public class Order {
         this.status = OrderStatus.MODTAGET;
         this.orderTime = LocalDateTime.now();
         this.pickupTime = pickupTime;
+        this.comment = "";
     }
 
     public void addPizza(Pizza pizza) {
@@ -53,6 +55,11 @@ public class Order {
         return pickupTime; }
     public LocalDateTime getOrderTime()  {
         return orderTime; }
+    public String getComment(){
+        return comment; }
+    public void setComment(String comment){
+        this.comment = comment;
+    }
 
     // FORMATTER METODER der bruges i de 2 forskellige statusser.
     public String getFormattedPickupTime() {
@@ -69,10 +76,13 @@ public class Order {
 
     @Override
     public String toString() {
+        String commentLine = (comment != null && !comment.isEmpty())
+                ? " | Kommentar: " + comment
+                : "";
         return "Ordre #" + orderId +
                 " | " + customer.getName() +
                 " | Afhentning: " + getFormattedPickupTime() +
                 " | " + status +
-                " | Pris: " + String.format("%.2f", getTotalPrice()) + " kr.";
+                " | Pris: " + String.format("%.2f", getTotalPrice()) + " kr." + commentLine;
     }
 }

@@ -30,12 +30,13 @@ public class FileHandler {
 
                 // Format: orderId,customerType,navn,pizzaNrs,pickupTime,status
                 writer.println(
-                        order.getOrderId()            + "," +
-                                customerType                  + "," +
-                                order.getCustomer().getName() + "," +
-                                pizzaNrs                      + "," +
+                        order.getOrderId()                                     + "," +
+                                customerType                                   + "," +
+                                order.getCustomer().getName()                  + "," +
+                                pizzaNrs                                       + "," +
                                 order.getFormattedPickupTimeWithDate()         + "," +
-                                order.getStatus()
+                                order.getStatus()                              + "," +
+                                (order.getComment() != null? order.getComment() : "")
                 );
             }
             writer.close();
