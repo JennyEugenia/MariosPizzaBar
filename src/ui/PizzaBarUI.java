@@ -84,19 +84,19 @@ public class PizzaBarUI {
                     Pizza pizza = menu.findPizza(pizzaNumber);
                     if (pizza != null) {
                         selectedPizzas.add(pizza);
-                        System.out.println(pizza.getName() + " tilføjet ✓");
+                        System.out.println(pizza.getName() + " tilføjet ");
                     } else {
                         ikkeFundet.add(pizzaNumber);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Ugyldigt nummer: " + choiceStr);
-                    ønsketAntal--; // tæl ikke tomme/ugyldige input med
+                    ønsketAntal--; // tæller ikke tomme/ugyldige input med
                 }
             }
 
             // Hvis nogle pizzaer ikke blev fundet – bed om erstatninger
             while (!ikkeFundet.isEmpty()) {
-                System.out.println("\nHov! " + ikkeFundet.size() + " af dine ønskede pizzaer findes ikke:");
+                System.out.println("\nOBS! " + ikkeFundet.size() + " af dine ønskede pizzaer findes ikke:");
                 for (int nr : ikkeFundet) {
                     System.out.println("  - Pizza nr. " + nr + " findes ikke i menuen.");
                 }
@@ -114,7 +114,7 @@ public class PizzaBarUI {
                         Pizza pizza = menu.findPizza(pizzaNumber);
                         if (pizza != null) {
                             selectedPizzas.add(pizza);
-                            System.out.println(pizza.getName() + " tilføjet ✓");
+                            System.out.println(pizza.getName() + " tilføjet ");
                         } else {
                             ikkeFundet.add(pizzaNumber); // stadig ikke fundet – prøv igen
                         }
@@ -130,44 +130,20 @@ public class PizzaBarUI {
                 System.out.println("  - " + pizza.getName() + " (" + pizza.getPrice() + " kr.)");
             }
 
-            System.out.println("\nEr dette korrekt? (1 = Ja, 2 = Nej – start forfra)");
+            System.out.println("\nEr denne bestilling korrekt? (1 = Ja, 2 = Nej – start forfra)");
             int confirm = ExceptionHandler.getIntInRange(scanner, 1, 2);
             scanner.nextLine();
 
             if (confirm == 1) {
                 confirmed = true;
             } else {
-                System.out.println("Okay – lad os prøve igen.");
+                System.out.println("Okay, lad os starte forfra :D.");
             }
-
-        /* tidligere kode ift indtastede pizzanumre
-        ArrayList<Pizza> selectedPizzas = new ArrayList<>();
-
-
-        while (selectedPizzas.isEmpty()) {
-            System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
-            String input = scanner.nextLine().trim();
-            String[] choices = input.split(",");
-
-            for (String choiceStr : choices) {
-                try {
-                    int pizzaNumber = Integer.parseInt(choiceStr.trim());
-                    Pizza pizza = menu.findPizza(pizzaNumber);
-                    if (pizza != null) {
-                        selectedPizzas.add(pizza);
-                        System.out.println(pizza.getName() + " tilføjet ✓");
-                    } else {
-                        System.out.println("Pizza nummer " + pizzaNumber + " findes ikke.");
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Ugyldigt nummer: " + choiceStr);
-                }
-            }
-
-            if (selectedPizzas.isEmpty()) {
-                System.out.println("Du skal vælge mindst én gyldig pizza – prøv igen.");
-            }*/
         }
+
+        System.out.println("\nEr der særlige ønsker til ordren?");
+        System.out.println("(fx 'ingen løg', 'ekstra ost' – tryk Enter for ingen kommentar)");
+        String comment = scanner.nextLine().trim();
 
         // Indtast afhentingstidspunkt
         LocalDateTime pickupTime = null;
@@ -184,6 +160,12 @@ public class PizzaBarUI {
 
         // Opret ordre med det korrekte afhentingstidspunkt
         Order order = orderManager.createOrder(customer, pickupTime);
+
+        if (!comment.isEmpty()){
+        order.setComment(comment);
+        System.out.println("Kommentar tilføjet");
+    }
+
 
         // Tilføj de valgte pizzaer til ordren
         for (Pizza pizza : selectedPizzas) {
@@ -212,7 +194,7 @@ public class PizzaBarUI {
         } else {
             OrderSorter.sortOrders(activeOrders);
             for (Order order : activeOrders) {
-                System.out.println(order.getOrderId() + ": " + order);
+                System.out.println(order.getOrderId() + ": " + order + " " + order.getComment());
             }
         }
 
