@@ -1,0 +1,39 @@
+MariosPizzaBar-app/
+│
+├── file/
+│   └── FileHandler.java
+├── main/
+│   └── Main.java
+│
+├── model/
+│   ├── Customer.java
+│   ├── EmployeeCustomer.java
+│   ├── Menu.java
+│   ├── NormalCustomer.java
+│   ├── Order.java
+│   ├── OrderStatus.java
+│   ├── Pizza.java
+│   └── VIPCustomer.java
+│
+│
+├── service/
+│   └── OrderManager.java
+│
+├── ui/
+│   └── PizzaBarUI.java
+│
+└── util/
+    ├── ExceptionHandler.java
+    ├── OrderComparator.java
+    └── OrderSorter.java
+    (orders.CSV)
+
+    main: starter programmet
+    ui: bruger grænseflade
+    service: logik (fx OrderManager)
+    model: data/klasser (Order, Pizza, Customer)
+    file: læs/skriv filer
+    util: hjælpeklasser
+
+    Jeg har opdelt systemet i packages for at gøre det overskueligt:
+     model for data, service for logik, ui for brugergrænseflade og util til hjælpeklasser.
