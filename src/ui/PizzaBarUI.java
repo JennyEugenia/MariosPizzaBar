@@ -3,6 +3,8 @@ package ui;
 import file.FileHandler;
 import model.*;
 import service.OrderManager;
+import util.ExceptionHandler;
+import util.OrderSorter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,24 +12,27 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
-import util.OrderSorter;
-import util.ExceptionHandler;
 
+// PizzaBarUI = user interface class (blueprint)
 public class PizzaBarUI {
 
     private Scanner scanner;
     private OrderManager orderManager;
     private Menu menu;
 
+    // Constructor to create an actual PizzaBarUI object
     public PizzaBarUI() {
         scanner = new Scanner(System.in);
         orderManager = new OrderManager();
         menu = new Menu();
 
-        // Indlæs tidligere ordrer fra fil ved opstart
         ArrayList<Order> loadedOrders = FileHandler.readOrders(menu);
         orderManager.loadOrders(loadedOrders);
     }
+
+    // -------------------------------------------------------
+    // MAIN LOOP — the program lives here until user exits
+    // -------------------------------------------------------
 
     public void start() {
         while (true) {
@@ -37,7 +42,7 @@ public class PizzaBarUI {
             System.out.println("3. Færdige ordrer + statistik");
             System.out.println("0. Afslut");
 
-            int choice = scanner.nextInt();
+            int choice = ExceptionHandler.getIntInRange(scanner, 0, 3);
             scanner.nextLine();
 
             switch (choice) {
@@ -48,10 +53,23 @@ public class PizzaBarUI {
                     System.out.println("Farvel!");
                     return;
                 }
-                default -> System.out.println("Ugyldigt valg!");
             }
         }
     }
+
+    // -----------------------------------------------------------------------------------------
+    // RECEIVE ORDER "Coordinator" following Single Responsibility principle (If user typed "1")
+    // -----------------------------------------------------------------------------------------
+
+    // Coordinates the full process of creating an order from user input
+
+    // receiveOrder()
+    //    ├── selectPizzas()
+    //    │       ├── choosePizzas()
+    //    │       │       └── parsePizzaChoice()
+    //    │       └── printSelectedPizzas()
+    //    ├── readComment()
+    //    └── readPickupTime()
 
     private void receiveOrder() {
         String name = ExceptionHandler.readName(scanner, "\nIndtast navn: ");
@@ -64,71 +82,40 @@ public class PizzaBarUI {
 
         menu.displayMenu();
 
+        ArrayList<Pizza> selectedPizzas = selectPizzas();
+        String comment = readComment();
+        LocalDateTime pickupTime = readPickupTime();
+
+        Order order = orderManager.createOrder(customer, pickupTime);
+        if (!comment.isEmpty()) {
+            order.setComment(comment);
+            System.out.println("Kommentar tilføjet.");
+        }
+
+        for (Pizza pizza : selectedPizzas) {
+            orderManager.addPizzaToOrder(order, pizza);
+        }
+
+        System.out.println("\nOrdre oprettet:");
+        System.out.println(order);
+
+        FileHandler.writeOrders(orderManager.getOrders());
+    }
+
+    // -------------------------------------------
+    // selectPizzas (HELPER used in RECEIVE ORDER)
+    // -------------------------------------------
+
+    //Lets the user choose pizzas and repeats until the selection is confirmed
+    private ArrayList<Pizza> selectPizzas() {
         ArrayList<Pizza> selectedPizzas = new ArrayList<>();
         boolean confirmed = false;
 
         while (!confirmed) {
-            selectedPizzas.clear();
 
-            System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
-            String input = scanner.nextLine().trim();
-            String[] choices = input.split(",");
+            selectedPizzas = choosePizzas();
 
-            // Hvor mange pizzaer ønskede Alfonso i alt?
-            int ønsketAntal = choices.length;
-            ArrayList<Integer> ikkeFundet = new ArrayList<>();
-
-            for (String choiceStr : choices) {
-                try {
-                    int pizzaNumber = Integer.parseInt(choiceStr.trim());
-                    Pizza pizza = menu.findPizza(pizzaNumber);
-                    if (pizza != null) {
-                        selectedPizzas.add(pizza);
-                        System.out.println(pizza.getName() + " tilføjet ");
-                    } else {
-                        ikkeFundet.add(pizzaNumber);
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Ugyldigt nummer: " + choiceStr);
-                    ønsketAntal--; // tæller ikke tomme/ugyldige input med
-                }
-            }
-
-            // Hvis nogle pizzaer ikke blev fundet – bed om erstatninger
-            while (!ikkeFundet.isEmpty()) {
-                System.out.println("\nOBS! " + ikkeFundet.size() + " af dine ønskede pizzaer findes ikke:");
-                for (int nr : ikkeFundet) {
-                    System.out.println("  - Pizza nr. " + nr + " findes ikke i menuen.");
-                }
-                System.out.println("Du ønskede " + ønsketAntal + " pizzaer i alt – vælg "
-                        + ikkeFundet.size() + " erstatning(er):");
-
-                ikkeFundet.clear(); // nulstil listen
-
-                String erstatning = scanner.nextLine().trim();
-                String[] erstatninger = erstatning.split(",");
-
-                for (String choiceStr : erstatninger) {
-                    try {
-                        int pizzaNumber = Integer.parseInt(choiceStr.trim());
-                        Pizza pizza = menu.findPizza(pizzaNumber);
-                        if (pizza != null) {
-                            selectedPizzas.add(pizza);
-                            System.out.println(pizza.getName() + " tilføjet ");
-                        } else {
-                            ikkeFundet.add(pizzaNumber); // stadig ikke fundet – prøv igen
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Ugyldigt nummer: " + choiceStr);
-                    }
-                }
-            }
-
-            // Bekræftelse
-            System.out.println("\nDu har valgt følgende " + selectedPizzas.size() + " pizzaer:");
-            for (Pizza pizza : selectedPizzas) {
-                System.out.println("  - " + pizza.getName() + " (" + pizza.getPrice() + " kr.)");
-            }
+            printSelectedPizzas(selectedPizzas);
 
             System.out.println("\nEr denne bestilling korrekt? (1 = Ja, 2 = Nej – start forfra)");
             int confirm = ExceptionHandler.getIntInRange(scanner, 1, 2);
@@ -141,44 +128,108 @@ public class PizzaBarUI {
             }
         }
 
-        System.out.println("\nEr der særlige ønsker til ordren?");
-        System.out.println("(fx 'ingen løg', 'ekstra ost' – tryk Enter for ingen kommentar)");
-        String comment = scanner.nextLine().trim();
+        return selectedPizzas;
+    }
 
-        // Indtast afhentingstidspunkt
-        LocalDateTime pickupTime = null;
-        while (pickupTime == null) {
+    // -------------------------------------------
+    // choosePizzas (HELPER used in RECEIVE ORDER)
+    // -------------------------------------------
+
+    //Handles user input of pizza numbers and manages invalid selections
+    private ArrayList<Pizza> choosePizzas() {
+        ArrayList<Pizza> selected = new ArrayList<>();
+        ArrayList<Integer> notFound = new ArrayList<>();
+
+        System.out.println("\nVælg pizza numre (fx 2,5,7) og tryk Enter:");
+        String input = scanner.nextLine().trim();
+
+        for (String choiceStr : input.split(",")) {
+            parsePizzaChoice(choiceStr, selected, notFound);
+        }
+
+        while (!notFound.isEmpty()) {
+            System.out.println("\nOBS! Disse pizzanumre findes ikke: " + notFound);
+            System.out.println("Vælg " + notFound.size() + " erstatning(er):");
+            notFound.clear();
+
+            String replacement = scanner.nextLine().trim();
+            for (String choiceStr : replacement.split(",")) {
+                parsePizzaChoice(choiceStr, selected, notFound);
+            }
+        }
+
+        return selected;
+    }
+
+    // -------------------------------------------------------
+    // parsePizzaChoice (HELPER used in RECEIVE ORDER)
+    // -------------------------------------------------------
+
+    // Validates a single pizza input and adds it to selected or notFound lists
+    private void parsePizzaChoice(String choiceStr,
+                                  ArrayList<Pizza> selected,
+                                  ArrayList<Integer> notFound) {
+        try {
+            int number = Integer.parseInt(choiceStr.trim());
+            Pizza pizza = menu.findPizza(number);
+            if (pizza != null) {
+                selected.add(pizza);
+                System.out.println(pizza.getName() + " tilføjet ✓");
+            } else {
+                notFound.add(number);
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Ugyldigt nummer: '" + choiceStr.trim() + "' – ignoreret.");
+        }
+    }
+
+    // -------------------------------------------------------
+    // printSelectedPizzas (HELPER used in RECEIVE ORDER)
+    // -------------------------------------------------------
+
+    // Displays all selected pizzas with their names and prices
+    private void printSelectedPizzas(ArrayList<Pizza> pizzas) {
+        System.out.println("\nDu har valgt følgende " + pizzas.size() + " pizzaer:");
+        for (Pizza pizza : pizzas) {
+            System.out.println("  - " + pizza.getName() +
+                    " (" + pizza.getPrice() + " kr.)");
+        }
+    }
+
+    // -------------------------------------------------------
+    // readComment (HELPER used in RECEIVE ORDER)
+    // -------------------------------------------------------
+
+    // Reads an optional comment or special request from the user
+    private String readComment() {
+        System.out.println("\nEr der særlige ønsker? (fx 'ingen løg' – tryk Enter for ingen):");
+        return scanner.nextLine().trim();
+    }
+
+    // -------------------------------------------------------
+    // readPickupTime (HELPER used in RECEIVE ORDER)
+    // -------------------------------------------------------
+
+    // Validates and converts user input into a pickup time (LocalDateTime)
+    private LocalDateTime readPickupTime() {
+        while (true) {
             System.out.println("\nIndtast afhentingstidspunkt (HH:mm):");
-            String timeInput = scanner.nextLine();
+            String input = scanner.nextLine().trim();
             try {
-                LocalTime parsedTime = LocalTime.parse(timeInput, DateTimeFormatter.ofPattern("HH:mm"));
-                pickupTime = LocalDate.now().atTime(parsedTime);
+                LocalTime parsedTime = LocalTime.parse(input,
+                        DateTimeFormatter.ofPattern("HH:mm"));
+                return LocalDate.now().atTime(parsedTime); // combine today's date with entered time
             } catch (Exception e) {
                 System.out.println("Ugyldigt format – prøv igen (fx 18:30).");
             }
         }
-
-        // Opret ordre med det korrekte afhentingstidspunkt
-        Order order = orderManager.createOrder(customer, pickupTime);
-
-        if (!comment.isEmpty()){
-        order.setComment(comment);
-        System.out.println("Kommentar tilføjet");
     }
 
+    // -------------------------------------------------------
+    // SHOW ACTIVE ORDERS (If user typed "2")
+    // -------------------------------------------------------
 
-        // Tilføj de valgte pizzaer til ordren
-        for (Pizza pizza : selectedPizzas) {
-            orderManager.addPizzaToOrder(order, pizza);
-        }
-
-        System.out.println("\nOrdre oprettet:");
-        System.out.println(order);
-
-        // Gem alle ordrer til fil
-        FileHandler.writeOrders(orderManager.getOrders());
-    }
-
+    // Displays active orders, allows marking them as picked up, and saves changes
     private void showActiveOrders() {
         System.out.println("\n--- AKTIVE ORDRER ---");
 
@@ -199,20 +250,24 @@ public class PizzaBarUI {
         }
 
         System.out.println("\nIndtast ordre ID for afhentning (0 = tilbage):");
-        int id = scanner.nextInt();
+        int id = ExceptionHandler.getIntInput(scanner);
         scanner.nextLine();
 
         if (id == 0) return;
 
         if (orderManager.updateOrderStatus(id, OrderStatus.AFHENTET)) {
             System.out.println("Ordre markeret som afhentet!");
-            // Gem efter statusændring
             FileHandler.writeOrders(orderManager.getOrders());
         } else {
             System.out.println("Ordre ikke fundet.");
         }
     }
 
+    // -------------------------------------------------------
+    // SHOW PAST ORDERS + STATISTICS (If user typed "3")
+    // -------------------------------------------------------
+
+    // Shows completed orders and prints statistics like revenue and popular pizzas
     private void showPastOrders() {
         System.out.println("\n--- TIDLIGERE ORDRER ---");
 
@@ -230,8 +285,11 @@ public class PizzaBarUI {
 
         System.out.println("\n--- STATISTIK ---");
         System.out.println("Antal færdige ordrer: " +
-                orderManager.getOrders().stream().filter(o -> o.getStatus() == OrderStatus.AFHENTET).count());
-        System.out.println("Total omsætning: " + String.format("%.2f", orderManager.getTotalRevenueByStatus(OrderStatus.AFHENTET)) + " kr");
+                orderManager.getOrders().stream()
+                        .filter(o -> o.getStatus() == OrderStatus.AFHENTET)
+                        .count());
+        System.out.println("Total omsætning: " +
+                String.format("%.2f", orderManager.getTotalRevenueByStatus(OrderStatus.AFHENTET)) + " kr");
 
         System.out.println("\n--- MEST SOLGTE PIZZAER ---");
         orderManager.printPizzaRanking(menu, OrderStatus.AFHENTET);

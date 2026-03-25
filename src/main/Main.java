@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Create the UI
+        // Instantiates the UI object
         PizzaBarUI ui = new PizzaBarUI();
 
         // Start the main loop
