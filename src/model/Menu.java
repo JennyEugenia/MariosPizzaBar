@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Menu {
     private ArrayList<Pizza> pizzas;
@@ -65,13 +66,12 @@ public class Menu {
     }
 
     public void displayMenu(){
-        for (Pizza pizza : pizzas){
-            System.out.println(pizza);
-        }
+        pizzas.stream()
+                .sorted(Comparator.comparingInt(Pizza::getPizzaNumber))
+                .forEach(System.out::println);
     }
 
     public ArrayList<Pizza> getPizzas(){
         return pizzas;
     }
-
 }
