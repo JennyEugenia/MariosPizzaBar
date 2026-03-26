@@ -28,7 +28,7 @@ public class FileHandler {
                     default                 -> "NORMAL";
                 };
 
-                // Format: orderId,customerType,navn,pizzaNrs,pickupTime,status
+                // Format: orderId,customerType,navn,pizzaNrs,pickupTime,status, comment
                 writer.println(
                         order.getOrderId()                                     + "," +
                                 customerType                                   + "," +
@@ -72,6 +72,10 @@ public class FileHandler {
 
                 Order order = new Order(orderId, customer, pickupTime);
                 order.setStatus(status);
+
+                if (parts.length > 6 && !parts[6].isEmpty()) {
+                    order.setComment(parts[6]);
+                }
 
                 for (String nr : pizzaNrs.split(";")) {
                     if (!nr.isEmpty()) {
