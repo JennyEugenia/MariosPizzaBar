@@ -79,10 +79,17 @@ public class Order {
         String commentLine = (comment != null && !comment.isEmpty())
                 ? " | Kommentar: " + comment
                 : "";
+
+        StringBuilder pizzaLine = new StringBuilder(" | Pizzaer: ");
+        for (int i = 0; i < pizzas.size(); i++) {
+            pizzaLine.append(pizzas.get(i).getName());
+            if (i < pizzas.size() - 1) pizzaLine.append(", ");
+        }
+
         return "Ordre #" + orderId +
                 " | " + customer.getName() +
                 " | Afhentning: " + getFormattedPickupTime() +
-                " | " + status +
-                " | Pris: " + String.format("%.2f", getTotalPrice()) + " kr." + commentLine;
+                " | " + status + pizzaLine + commentLine +
+                " | Pris: " + String.format("%.2f", getTotalPrice()) + " kr.";
     }
 }

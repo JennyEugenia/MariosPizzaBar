@@ -47,5 +47,4 @@ public class ExceptionHandler {
         }
         return name;
     }
-
 }

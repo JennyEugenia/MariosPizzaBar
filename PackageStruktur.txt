@@ -36,4 +36,4 @@ MariosPizzaBar-app/
     util: hjælpeklasser
 
     Jeg har opdelt systemet i packages for at gøre det overskueligt:
-     model for data, service for logik, ui for brugergrænseflade og util til hjælpeklasser.
+    model for data, service for logik, ui for brugergrænseflade og util til hjælpeklasser.

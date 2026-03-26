@@ -12,7 +12,7 @@ public class FileHandler {
 
     public static void writeOrders(ArrayList<Order> orders) {
         try {
-            // false = overskriv hele filen så vi undgår dubletter
+            // false = overskriver hele filen så der undgås dubletter
             PrintWriter writer = new PrintWriter(new FileWriter(FILENAME, false));
 
             for (Order order : orders) {
