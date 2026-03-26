@@ -99,10 +99,6 @@ public class OrderManager {
             }
         }
     }
-    
-    public int getOrderCount() {
-        return orders.size();
-    }
 
     // Indlæser ordrer fra fil og sætter nextOrderId korrekt
     public void loadOrders(ArrayList<Order> loadedOrders) {
