@@ -53,8 +53,6 @@ public class Order {
         return status; }
     public LocalDateTime getPickupTime() {
         return pickupTime; }
-    public LocalDateTime getOrderTime()  {
-        return orderTime; }
     public String getComment(){
         return comment; }
     public void setComment(String comment){
