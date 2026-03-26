@@ -202,7 +202,7 @@ public class PizzaBarUI {
 
     // Reads an optional comment or special request from the user
     private String readComment() {
-        System.out.println("\nEr der særlige ønsker? (fx 'ingen løg' – tryk Enter for ingen):");
+        System.out.println("\nEr der særlige ønsker/allergener? (fx 'ingen løg' ellers tryk Enter for ingen kommentar):");
         return scanner.nextLine().trim();
     }
 
