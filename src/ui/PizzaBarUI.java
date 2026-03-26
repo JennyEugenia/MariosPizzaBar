@@ -245,7 +245,7 @@ public class PizzaBarUI {
         } else {
             OrderSorter.sortOrders(activeOrders);
             for (Order order : activeOrders) {
-                System.out.println(order.getOrderId() + ": " + order + " " + order.getComment());
+                System.out.println(order.getOrderId() + ": " + order);
             }
         }
 
